@@ -40,38 +40,9 @@ Docs: https://docs.expo.dev/eas/index.md
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
 
----
+## Shared contract
 
-# Project-specific rules: Planting Productivity (INFS 611, Group 2)
-
-Android-only Expo (development build) app in TypeScript. A focus-session app
-that grows a plant avatar as the user stays off their phone. Uses the
-accelerometer (face-down and pickup detection), GPS (user-configurable campus
-geofence), and local SQLite storage. No backend.
-
-## Rules
-- Do not add dependencies without asking. Prefer Expo packages that work in a
-  development build. Avoid Reanimated, gesture handler, and navigation
-  libraries for now.
-- Detection logic lives in `src/detection/` as PURE functions (no React, no
-  sensor or device APIs) so it can be tested with recorded data.
-- Sensor access lives in `src/sensors/`; database code in `src/db/`; session
-  state in `src/session/`; screens in `src/screens/`.
-- Keep files small and typed. No `any`.
-- Windows dev environment: keep paths short; do not run commands that
-  regenerate the `android/` folder unless asked.
-- After each change, list the files changed and how to test it on a phone.
-
-## Defaults
-- Face-down: accelerometer z < -8 (m/s^2). Pickup: |magnitude - 9.81| > 2.5
-  sustained for 400 ms. Both thresholds are configurable constants.
-
-  ## Overrides (these take precedence over the general Expo guidance above)
-- Target Android only. Do not add iOS-specific code.
-- Do NOT use Expo Router or any navigation library for now. Switch screens
-  with simple React state. Screens live in `src/screens/`, not `src/app/`.
-  UI wireframes are in docs/design/; match them when implementing screens.
-- Do not use or configure EAS. Builds are local: `npx expo run:android --device`.
-- Do not add Reanimated, gesture handler, or other native C++ libraries
-  without asking. Use `npx expo install` for any approved package.
-- If `npx expo lint` requires installing ESLint, ask first.
+- `src/types.ts` is the source of truth for data shapes and events; do not edit it without being told to.
+- Code to the types in `src/types.ts`.
+- Lane C is the only lane that edits `App.tsx` and screen files.
+- Other lanes expose hooks and pure functions.
