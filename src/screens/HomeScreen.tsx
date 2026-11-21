@@ -8,12 +8,9 @@ import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { PlantView } from '../components/PlantView';
 import { ProgressBar } from '../components/ProgressBar';
-import {
-  plantStage,
-  todayMinutes,
-  weeklyGoalMinutes,
-  weeklyTargetMinutes,
-} from '../mockData';
+import { STAGE_NAMES } from '../avatar/avatar';
+import { formatDuration, goalProgress } from '../goals/goalMath';
+import { useStats } from '../goals/useStats';
 import type { ScreenName } from '../navigation/types';
 import { colors, radius, spacing } from '../theme';
 
@@ -21,11 +18,11 @@ type HomeScreenProps = {
   navigate: (screen: ScreenName) => void;
 };
 
-const stageNames = ['Seed', 'Seedling', 'Sapling', 'Young tree', 'Mature tree'];
+//const stageNames = ['Seed', 'Seedling', 'Sapling', 'Young tree', 'Mature tree'];
 
 export function HomeScreen({ navigate }: HomeScreenProps) {
-  const stageName = stageNames[plantStage - 1];
-  const minutesToNextStage = 180;
+  const stats = useStats();
+  const stageName = STAGE_NAMES[stats.stage];
 
   return (
     <View style={styles.container}>
@@ -35,23 +32,28 @@ export function HomeScreen({ navigate }: HomeScreenProps) {
       >
         <View style={styles.header}>
           <Text style={styles.pageTitle}>My garden</Text>
-          <Text style={styles.today}>Today: {todayMinutes} min</Text>
+          <Text style={styles.today}>Today: {stats.todayMinutes} min</Text>
         </View>
 
         <Card style={styles.plantCard}>
-          <PlantView stage={plantStage} />
+          <PlantView stage={stats.stage} />
           <Text style={styles.plantName}>{stageName}</Text>
           <Text style={styles.plantProgress}>
-            Stage {plantStage} of 5 · {minutesToNextStage} min to next stage
+            Stage {stats.stage} of 5 ·{' '}
+            {stats.minutesToNext === null
+              ? 'Fully grown'
+              : `${stats.minutesToNext} min to next stage`}
           </Text>
         </Card>
 
-        <Card style={styles.weeklyCard}>
-          <Text style={styles.sectionTitle}>Weekly goal</Text>
-          <Text style={styles.goalText}>
-            {weeklyGoalMinutes / 60} h of {weeklyTargetMinutes / 60} h
-          </Text>
-          <ProgressBar value={weeklyGoalMinutes / weeklyTargetMinutes} />
+       <Card style={styles.weeklyCard}>
+        <Text style={styles.sectionTitle}>Weekly goal</Text>
+        <Text style={styles.goalText}>
+          {formatDuration(stats.weekMinutes)} h of {formatDuration(stats.weekTargetMinutes)} h
+         </Text>
+        <ProgressBar
+           value={goalProgress(stats.weekMinutes, stats.weekTargetMinutes)}
+        />
         </Card>
 
         <Card style={styles.plantsCard}>

@@ -30,6 +30,6 @@
 |---|---|
 | A | `src/sensors/`, `src/detection/` (faceDown, pickup) |
 | B | `src/session/`, `src/notifications/`, `src/detection/geofence.ts`, `src/location/` |
-| C | `src/db/`, `src/avatar/`, `src/goals/`, `src/screens/`, `src/components/`, `App.tsx`, `src/mockData.ts` |
+| C | `src/db/`, `src/avatar/`, `src/goals/`, `src/screens/`, `src/components/`, `App.tsx` |
 
 Changes to `src/types.ts` require approval from all three teammates on the pull request.

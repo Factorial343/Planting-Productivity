@@ -8,13 +8,8 @@ import {
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { ProgressBar } from '../components/ProgressBar';
-import {
-  monthlyGoalMinutes,
-  monthlyTargetMinutes,
-  recentSessions,
-  weeklyGoalMinutes,
-  weeklyTargetMinutes,
-} from '../mockData';
+import { formatDuration, goalProgress } from '../goals/goalMath';
+import { useStats } from '../goals/useStats';
 import type { ScreenName } from '../navigation/types';
 import { colors, spacing } from '../theme';
 
@@ -23,6 +18,7 @@ type GoalsScreenProps = {
 };
 
 export function GoalsScreen({ navigate }: GoalsScreenProps) {
+  const stats = useStats();
   const [editMessageVisible, setEditMessageVisible] = useState(false);
 
   return (
@@ -36,29 +32,29 @@ export function GoalsScreen({ navigate }: GoalsScreenProps) {
         <Card style={styles.goalCard}>
           <Text style={styles.cardTitle}>This week</Text>
           <Text style={styles.goalValue}>
-            {weeklyGoalMinutes / 60} h of {weeklyTargetMinutes / 60} h
-          </Text>
-          <ProgressBar value={weeklyGoalMinutes / weeklyTargetMinutes} />
+          {formatDuration(stats.weekMinutes)} of {formatDuration(stats.weekTargetMinutes)}          </Text>
+          <ProgressBar value={goalProgress(stats.weekMinutes, stats.weekTargetMinutes)} />
         </Card>
 
         <Card style={styles.goalCard}>
           <Text style={styles.cardTitle}>This month</Text>
           <Text style={styles.goalValue}>
-            {monthlyGoalMinutes / 60} h of {monthlyTargetMinutes / 60} h
-          </Text>
-          <ProgressBar value={monthlyGoalMinutes / monthlyTargetMinutes} />
+          {formatDuration(stats.monthMinutes)} of {formatDuration(stats.monthTargetMinutes)}              </Text>
+          <ProgressBar value={goalProgress(stats.monthMinutes, stats.monthTargetMinutes)} />
         </Card>
 
         <Card style={styles.sessionsCard}>
           <Text style={styles.cardTitle}>Recent sessions</Text>
-          {recentSessions.map((session) => (
-            <View key={session.id} style={styles.sessionRow}>
-              <Text style={styles.sessionLabel}>{session.label}</Text>
-              <Text style={styles.sessionDuration}>
-                {session.minutes} min
-              </Text>
-            </View>
-          ))}
+          {stats.recent.length === 0 ? (
+           <Text style={styles.sessionLabel}>No sessions yet.</Text>
+          ) : (
+            stats.recent.map((session) => (
+              <View key={session.id} style={styles.sessionRow}>
+                <Text style={styles.sessionLabel}>{session.label}</Text>
+                <Text style={styles.sessionDuration}>{session.minutes} min</Text>
+              </View>
+            ))
+          )}
         </Card>
 
         <Button

@@ -8,11 +8,8 @@ import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { PlantView } from '../components/PlantView';
 import { ProgressBar } from '../components/ProgressBar';
-import {
-  plantStage,
-  weeklyGoalMinutes,
-  weeklyTargetMinutes,
-} from '../mockData';
+import { formatDuration, goalProgress } from '../goals/goalMath';
+import { useStats } from '../goals/useStats';
 import { colors, spacing } from '../theme';
 
 type SummaryScreenProps = {
@@ -27,9 +24,8 @@ export function SummaryScreen({
   onStartAnother,
 }: SummaryScreenProps) {
   const focusedMinutes = Math.floor(elapsedSeconds / 60);
-  const weeklyTotalMinutes = weeklyGoalMinutes + focusedMinutes;
-  const stageAfterSession = Math.min(5, plantStage + 1);
-  const weeklyProgress = Math.min(1, weeklyTotalMinutes / weeklyTargetMinutes);
+  const stats = useStats();
+  const weeklyProgress = goalProgress(stats.weekMinutes, stats.weekTargetMinutes);
 
   return (
     <View style={styles.container}>
@@ -40,12 +36,12 @@ export function SummaryScreen({
         <Text style={styles.pageTitle}>Session complete</Text>
 
         <Card style={styles.plantCard}>
-          <PlantView stage={plantStage} />
+          <PlantView stage={stats.stage} />
           <Text style={styles.focusedHeadline}>
             +{focusedMinutes} min focused
           </Text>
           <Text style={styles.plantProgress}>
-            Your plant grew toward Stage {stageAfterSession}
+            Your plant is at Stage {stats.stage} of 5
           </Text>
         </Card>
 
@@ -61,8 +57,7 @@ export function SummaryScreen({
           <View style={styles.statRow}>
             <Text style={styles.statLabel}>Weekly goal</Text>
             <Text style={styles.statValue}>
-              {(weeklyTotalMinutes / 60).toFixed(1)} of{' '}
-              {weeklyTargetMinutes / 60} h
+              {formatDuration(stats.weekMinutes)} of {formatDuration(stats.weekTargetMinutes)}
             </Text>
           </View>
           <ProgressBar value={weeklyProgress} />
