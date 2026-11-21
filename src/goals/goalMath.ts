@@ -25,3 +25,10 @@ export function goalProgress(doneMinutes: number, targetMinutes: number): number
   if (targetMinutes <= 0) return 0;
   return Math.min(1, Math.max(0, doneMinutes / targetMinutes));
 }
+
+export function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m === 0 ? `${h} h` : `${h} h ${m} min`;
+}

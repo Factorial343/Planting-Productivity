@@ -1,3 +1,4 @@
+import { sessionsRepo } from './src/db';
 import { useState } from 'react';
 import {
   StatusBar as NativeStatusBar,
@@ -56,8 +57,25 @@ export default function App() {
           isPromptVisible={screen === 'prompt'}
           onOpenPrompt={() => setScreen('prompt')}
           onKeepGoing={() => setScreen('active')}
-          onEnd={(elapsed) => {
+          onEnd={async (elapsed) => {
             setElapsedSeconds(elapsed);
+            if (elapsed > 0) {
+              const now = Date.now();
+              try {
+                await sessionsRepo.insert({
+                  mode: 'single',
+                  startTime: now - elapsed * 1000,
+                  endTime: now,
+                  plannedMs: sessionLength * 60000,
+                  focusedMs: elapsed * 1000,
+                  pickupCount: 0,            // Lane B will supply this later
+                  campusId: null,            // and this, once location is wired
+                 endReason: elapsed >= sessionLength * 60 ? 'completed' : 'user_ended',
+                });
+              } catch (e) {
+                console.error('Failed to save session', e);
+              }
+            }
             setScreen('summary');
           }}
         />
