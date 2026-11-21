@@ -1,5 +1,4 @@
 import type { Millis } from '../types';
-
 export interface Range { from: Millis; to: Millis } // from inclusive, to exclusive
 
 export function weekRange(now: Millis): Range {

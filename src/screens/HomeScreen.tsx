@@ -49,7 +49,7 @@ export function HomeScreen({ navigate }: HomeScreenProps) {
        <Card style={styles.weeklyCard}>
         <Text style={styles.sectionTitle}>Weekly goal</Text>
         <Text style={styles.goalText}>
-          {formatDuration(stats.weekMinutes)} h of {formatDuration(stats.weekTargetMinutes)} h
+          {formatDuration(stats.weekMinutes)} of {formatDuration(stats.weekTargetMinutes)}
          </Text>
         <ProgressBar
            value={goalProgress(stats.weekMinutes, stats.weekTargetMinutes)}
