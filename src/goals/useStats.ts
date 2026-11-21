@@ -29,7 +29,7 @@ const EMPTY: Stats = {
 };
 
 // Loads once each time the screen using it mounts.
-export function useStats(): Stats {
+export function useStats(refreshKey = 0): Stats {
   const [stats, setStats] = useState<Stats>(EMPTY);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export function useStats(): Stats {
       if (!cancelled) setStats(next);
     })().catch((e) => console.error('useStats failed', e));
     return () => { cancelled = true; };
-  }, []);
+  }, [refreshKey]);
 
   return stats;
 }
