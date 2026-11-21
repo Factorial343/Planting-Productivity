@@ -1,0 +1,1 @@
+export { sessionsRepo, campusesRepo, goalsRepo } from './repos';
