@@ -1,4 +1,4 @@
-import { goalProgress, monthRange, msToMinutes, weekRange } from './goalMath';
+import { formatDuration, goalProgress, monthRange, msToMinutes, weekRange } from './goalMath';
 
 test('week starts Monday (Fri Nov 20, 2026 -> Mon Nov 16)', () => {
   const r = weekRange(new Date(2026, 10, 20, 15, 30).getTime());
@@ -22,4 +22,11 @@ test('progress is clamped and safe', () => {
   expect(goalProgress(90, 60)).toBe(1);
   expect(goalProgress(10, 0)).toBe(0);
   expect(msToMinutes(125000)).toBe(2);
+});
+
+test('formatDuration', () => {
+  expect(formatDuration(0)).toBe('0 min');
+  expect(formatDuration(45)).toBe('45 min');
+  expect(formatDuration(60)).toBe('1 h');
+  expect(formatDuration(135)).toBe('2 h 15 min');
 });
