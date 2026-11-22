@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { goalsRepo } from '../db';
 import {
   ScrollView,
   StyleSheet,
@@ -8,13 +9,8 @@ import {
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { ProgressBar } from '../components/ProgressBar';
-import {
-  monthlyGoalMinutes,
-  monthlyTargetMinutes,
-  recentSessions,
-  weeklyGoalMinutes,
-  weeklyTargetMinutes,
-} from '../mockData';
+import { formatDuration, goalProgress } from '../goals/goalMath';
+import { useStats } from '../goals/useStats';
 import type { ScreenName } from '../navigation/types';
 import { colors, spacing } from '../theme';
 
@@ -23,8 +19,31 @@ type GoalsScreenProps = {
 };
 
 export function GoalsScreen({ navigate }: GoalsScreenProps) {
-  const [editMessageVisible, setEditMessageVisible] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const stats = useStats(refreshKey);
+  const [editing, setEditing] = useState(false);
+  const [weekHours, setWeekHours] = useState(10);
+  const [monthHours, setMonthHours] = useState(40);
 
+  const startEditing = () => {
+    setWeekHours(Math.round(stats.weekTargetMinutes / 60));
+    setMonthHours(Math.round(stats.monthTargetMinutes / 60));
+    setEditing(true);
+  };
+  
+  const saveGoals = async () => {
+    const d = new Date();
+    const startDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    try {
+      await goalsRepo.set({ period: 'week', targetMinutes: weekHours * 60, startDate });
+      await goalsRepo.set({ period: 'month', targetMinutes: monthHours * 60, startDate });
+      setRefreshKey((k) => k + 1);
+      setEditing(false);
+    } catch (e) {
+      console.error('Failed to save goals', e);
+    }
+  };
+  
   return (
     <View style={styles.container}>
       <ScrollView
@@ -36,39 +55,54 @@ export function GoalsScreen({ navigate }: GoalsScreenProps) {
         <Card style={styles.goalCard}>
           <Text style={styles.cardTitle}>This week</Text>
           <Text style={styles.goalValue}>
-            {weeklyGoalMinutes / 60} h of {weeklyTargetMinutes / 60} h
-          </Text>
-          <ProgressBar value={weeklyGoalMinutes / weeklyTargetMinutes} />
+          {formatDuration(stats.weekMinutes)} of {formatDuration(stats.weekTargetMinutes)}          </Text>
+          <ProgressBar value={goalProgress(stats.weekMinutes, stats.weekTargetMinutes)} />
         </Card>
 
         <Card style={styles.goalCard}>
           <Text style={styles.cardTitle}>This month</Text>
           <Text style={styles.goalValue}>
-            {monthlyGoalMinutes / 60} h of {monthlyTargetMinutes / 60} h
-          </Text>
-          <ProgressBar value={monthlyGoalMinutes / monthlyTargetMinutes} />
+          {formatDuration(stats.monthMinutes)} of {formatDuration(stats.monthTargetMinutes)}              </Text>
+          <ProgressBar value={goalProgress(stats.monthMinutes, stats.monthTargetMinutes)} />
         </Card>
 
         <Card style={styles.sessionsCard}>
           <Text style={styles.cardTitle}>Recent sessions</Text>
-          {recentSessions.map((session) => (
-            <View key={session.id} style={styles.sessionRow}>
-              <Text style={styles.sessionLabel}>{session.label}</Text>
-              <Text style={styles.sessionDuration}>
-                {session.minutes} min
-              </Text>
-            </View>
-          ))}
+          {stats.recent.length === 0 ? (
+           <Text style={styles.sessionLabel}>No sessions yet.</Text>
+          ) : (
+            stats.recent.map((session) => (
+              <View key={session.id} style={styles.sessionRow}>
+                <Text style={styles.sessionLabel}>{session.label}</Text>
+                <Text style={styles.sessionDuration}>{session.minutes} min</Text>
+              </View>
+            ))
+          )}
         </Card>
 
-        <Button
-          title="Edit goals"
-          variant="outline"
-          onPress={() => setEditMessageVisible((visible) => !visible)}
-        />
-        {editMessageVisible ? (
-          <Text style={styles.notice}>Goal editing is not available yet.</Text>
-        ) : null}
+        {editing ? (
+          <Card style={styles.goalCard}>
+            <Text style={styles.cardTitle}>Weekly target: {weekHours} h</Text>
+            <View style={styles.stepper}>
+              <Button title="-" variant="outline" disabled={weekHours <= 1}
+                onPress={() => setWeekHours((h) => h - 1)} style={styles.stepButton} />
+              <Button title="+" variant="outline" disabled={weekHours >= 60}
+                onPress={() => setWeekHours((h) => h + 1)} style={styles.stepButton} />
+            </View>
+            <Text style={styles.cardTitle}>Monthly target: {monthHours} h</Text>
+            <View style={styles.stepper}>
+              <Button title="-" variant="outline" disabled={monthHours <= 1}
+                onPress={() => setMonthHours((h) => h - 1)} style={styles.stepButton} />
+              <Button title="+" variant="outline" disabled={monthHours >= 250}
+                onPress={() => setMonthHours((h) => h + 1)} style={styles.stepButton} />
+            </View>
+            <Button title="Save goals" onPress={saveGoals} />
+            <Button title="Cancel" variant="outline" onPress={() => setEditing(false)} />
+          </Card>
+        ) : (
+          <Button title="Edit goals" variant="outline" onPress={startEditing} />
+        )}
+
         <Button
           title="Edit campus zone"
           variant="outline"
@@ -151,6 +185,13 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   tabButton: {
+    flex: 1,
+  },
+  stepper: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  stepButton: {
     flex: 1,
   },
 });
