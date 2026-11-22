@@ -4,7 +4,7 @@ export interface Range { from: Millis; to: Millis } // from inclusive, to exclus
 export function weekRange(now: Millis): Range {
   const start = new Date(now);
   start.setHours(0, 0, 0, 0);
-  start.setDate(start.getDate() - ((start.getDay() + 6) % 7)); // back to Monday
+  start.setDate(start.getDate() - start.getDay()); // back to Sunday
   const end = new Date(start);
   end.setDate(end.getDate() + 7);
   return { from: start.getTime(), to: end.getTime() };

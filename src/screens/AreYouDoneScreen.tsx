@@ -23,18 +23,16 @@ export function AreYouDoneScreen({
   return (
     <View style={styles.container}>
       <Card style={styles.promptCard}>
-        <Text style={styles.title}>Phone picked up</Text>
         <Text style={styles.description}>
-          Timer paused at {formatTime(remainingSeconds)}. Are you done
-          studying?
+          Timer paused at {formatTime(remainingSeconds)}. End this session?
         </Text>
         <Button
-          title="Yes, end session"
+          title="Yes, End Session"
           onPress={onYes}
           style={styles.button}
         />
         <Button
-          title="No, keep going"
+          title="No, Keep Going"
           variant="outline"
           onPress={onKeepGoing}
           style={styles.button}

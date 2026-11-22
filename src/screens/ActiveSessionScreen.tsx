@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { AreYouDoneScreen } from './AreYouDoneScreen';
 import { Button } from '../components/Button';
-import { PlantView } from '../components/PlantView';
+import { TimerClock } from '../components/TimerClock';
 import { ProgressBar } from '../components/ProgressBar';
 import { useSession } from '../session/useSession';
 import { colors, spacing } from '../theme';
@@ -69,7 +69,7 @@ export function ActiveSessionScreen({
       <Text style={styles.sessionInfo}>Single session · Main campus</Text>
 
       <View style={styles.center}>
-        <PlantView stage={2} />
+        <TimerClock progress={progress} />
         <Text style={styles.timer}>{formatTime(remainingSeconds)}</Text>
         <Text style={styles.timerCaption}>
           of {formatTime(lengthMinutes * 60)} · Phone face down: yes
