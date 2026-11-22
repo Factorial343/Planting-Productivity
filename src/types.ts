@@ -81,6 +81,7 @@ export type SessionEvent =
   | { type: 'RESUME'; at: Millis }
   | { type: 'END'; at: Millis; reason: SessionEndReason };
 
+  
 // ---- Data layer contracts (Lane C implements, A and B call) ----
 export interface SessionsRepo {
   insert(session: NewSession): Promise<Session>;
