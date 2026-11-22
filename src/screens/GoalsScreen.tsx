@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { goalsRepo } from '../db';
+import { DEFAULT_PLANT, type PlantId } from '../avatar/plants';
+import { PlantPicker } from '../components/PlantPicker';
+import { getSelectedPlant, setSelectedPlant, goalsRepo } from '../db';
 import {
   ScrollView,
   StyleSheet,
@@ -24,12 +26,18 @@ export function GoalsScreen({ navigate }: GoalsScreenProps) {
   const [editing, setEditing] = useState(false);
   const [weekHours, setWeekHours] = useState(10);
   const [monthHours, setMonthHours] = useState(40);
+  const [plant, setPlant] = useState<PlantId>(DEFAULT_PLANT);
 
-  const startEditing = () => {
-    setWeekHours(Math.round(stats.weekTargetMinutes / 60));
-    setMonthHours(Math.round(stats.monthTargetMinutes / 60));
-    setEditing(true);
-  };
+  const startEditing = async () => {
+  setWeekHours(Math.round(stats.weekTargetMinutes / 60));
+  setMonthHours(Math.round(stats.monthTargetMinutes / 60));
+  try {
+    setPlant(await getSelectedPlant());
+  } catch (e) {
+    console.error('getSelectedPlant failed', e);
+  }
+  setEditing(true);
+};
   
   const saveGoals = async () => {
     const d = new Date();
@@ -37,6 +45,7 @@ export function GoalsScreen({ navigate }: GoalsScreenProps) {
     try {
       await goalsRepo.set({ period: 'week', targetMinutes: weekHours * 60, startDate });
       await goalsRepo.set({ period: 'month', targetMinutes: monthHours * 60, startDate });
+      await setSelectedPlant(plant);
       setRefreshKey((k) => k + 1);
       setEditing(false);
     } catch (e) {
@@ -96,6 +105,8 @@ export function GoalsScreen({ navigate }: GoalsScreenProps) {
               <Button title="+" variant="outline" disabled={monthHours >= 250}
                 onPress={() => setMonthHours((h) => h + 1)} style={styles.stepButton} />
             </View>
+            <Text style={styles.cardTitle}>Your plant</Text>
+            <PlantPicker value={plant} onChange={setPlant} />
             <Button title="Save goals" onPress={saveGoals} />
             <Button title="Cancel" variant="outline" onPress={() => setEditing(false)} />
           </Card>

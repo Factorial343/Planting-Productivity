@@ -1,14 +1,20 @@
 import { formatDuration, goalProgress, monthRange, msToMinutes, weekRange } from './goalMath';
 
-test('week starts Monday (Fri Nov 20, 2026 -> Mon Nov 16)', () => {
+test('week starts Sunday (Fri Nov 20, 2026 -> Sun Nov 15)', () => {
   const r = weekRange(new Date(2026, 10, 20, 15, 30).getTime());
-  expect(r.from).toBe(new Date(2026, 10, 16).getTime());
-  expect(r.to).toBe(new Date(2026, 10, 23).getTime());
+  expect(r.from).toBe(new Date(2026, 10, 15).getTime());
+  expect(r.to).toBe(new Date(2026, 10, 22).getTime());
 });
 
-test('Sunday belongs to the week that started the previous Monday', () => {
+test('Sunday starts a new week (Sun Nov 22, 2026)', () => {
   const r = weekRange(new Date(2026, 10, 22, 9, 0).getTime());
-  expect(r.from).toBe(new Date(2026, 10, 16).getTime());
+  expect(r.from).toBe(new Date(2026, 10, 22).getTime());
+  expect(r.to).toBe(new Date(2026, 10, 29).getTime());
+});
+
+test('Saturday belongs to the week that started the previous Sunday', () => {
+  const r = weekRange(new Date(2026, 10, 21, 23, 0).getTime());
+  expect(r.from).toBe(new Date(2026, 10, 15).getTime());
 });
 
 test('month range', () => {
