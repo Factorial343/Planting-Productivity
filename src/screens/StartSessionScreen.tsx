@@ -8,6 +8,7 @@ import {
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { colors, spacing } from '../theme';
+import { useDemoState } from '../demo/demoState';
 
 type SessionMode = 'single' | 'weekly';
 
@@ -28,6 +29,7 @@ export function StartSessionScreen({
 }: StartSessionScreenProps) {
   const [mode, setMode] = useState<SessionMode>('single');
   const [length, setLength] = useState(initialLength);
+  const demo = useDemoState();
 
   const adjustLength = (amount: number) => {
     setLength((current) =>
@@ -85,7 +87,7 @@ export function StartSessionScreen({
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>Place</Text>
           <Text style={styles.description}>
-            Campus Zone: Main Campus (You Are Inside)
+            Campus Zone: Main Campus ({demo.onCampus ? 'You are inside' : 'You are Outside'})
           </Text>
         </Card>
 

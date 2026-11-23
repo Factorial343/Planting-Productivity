@@ -5,4 +5,5 @@ export type ScreenName =
   | 'prompt'
   | 'summary'
   | 'goals'
-  | 'campus';
+  | 'campus'
+  | 'demo';

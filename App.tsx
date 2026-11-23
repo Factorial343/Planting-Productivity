@@ -1,5 +1,6 @@
-import { sessionsRepo } from './src/db';
-import { useState } from 'react';
+import { campusesRepo, sessionsRepo } from './src/db';
+import { DEMO_TOOLS_ENABLED } from './src/demo/config';
+import { getDemoState, resetPickups } from './src/demo/demoState';import { useState } from 'react';
 import {
   StatusBar as NativeStatusBar,
   StyleSheet,
@@ -14,16 +15,18 @@ import { GoalsScreen } from './src/screens/GoalsScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { StartSessionScreen } from './src/screens/StartSessionScreen';
 import { SummaryScreen } from './src/screens/SummaryScreen';
+import { DemoToolsScreen } from './src/screens/DemoToolsScreen';
 import { colors, spacing } from './src/theme';
 import type { ScreenName } from './src/navigation/types';
 
 const screenTitles: Record<Exclude<ScreenName, 'home'>, string> = {
-  start: 'Start focus',
-  active: 'Focus session',
-  prompt: 'Session check-in',
-  summary: 'Session summary',
+  start: 'Start Focus',
+  active: 'Focus Session',
+  prompt: 'Session Check-in',
+  summary: 'Session Summary',
   goals: 'Goals',
-  campus: 'Campus setup',
+  campus: 'Campus Setup',
+  demo: 'Demo Tools'
 };
 
 export default function App() {
@@ -46,6 +49,7 @@ export default function App() {
         <StartSessionScreen
           initialLength={sessionLength}
           onBegin={(lengthMinutes) => {
+            resetPickups();
             setSessionLength(lengthMinutes);
             setScreen('active');
           }}
@@ -62,15 +66,21 @@ export default function App() {
             if (elapsed > 0) {
               const now = Date.now();
               try {
+                const demo = getDemoState();
+                let campusId: number | null = null;
+                if (DEMO_TOOLS_ENABLED && demo.onCampus) {
+                  const campuses = await campusesRepo.list();
+                  campusId = campuses[0]?.id ?? null;
+                }
                 await sessionsRepo.insert({
                   mode: 'single',
                   startTime: now - elapsed * 1000,
                   endTime: now,
                   plannedMs: sessionLength * 60000,
                   focusedMs: elapsed * 1000,
-                  pickupCount: 0,            // Lane B will supply this later
-                  campusId: null,            // and this, once location is wired
-                 endReason: elapsed >= sessionLength * 60 ? 'completed' : 'user_ended',
+                  pickupCount: DEMO_TOOLS_ENABLED ? demo.pickups : 0,
+                  campusId,
+                  endReason: elapsed >= sessionLength * 60 ? 'completed' : 'user_ended',
                 });
               } catch (e) {
                 console.error('Failed to save session', e);
@@ -92,6 +102,8 @@ export default function App() {
           onSave={() => setScreen('home')}
           onCancel={() => setScreen('home')}
         />
+      ) : screen === 'demo' ? (
+       <DemoToolsScreen onBack={() => setScreen('goals')} />
       ) : (
         <View style={styles.placeholder}>
           <Text style={styles.title}>{screenTitles[screen]}</Text>

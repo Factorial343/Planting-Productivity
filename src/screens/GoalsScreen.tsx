@@ -15,6 +15,7 @@ import { formatDuration, goalProgress } from '../goals/goalMath';
 import { useStats } from '../goals/useStats';
 import type { ScreenName } from '../navigation/types';
 import { colors, spacing } from '../theme';
+import { DEMO_TOOLS_ENABLED } from '../demo/config';
 
 type GoalsScreenProps = {
   navigate: (screen: ScreenName) => void;
@@ -119,6 +120,13 @@ export function GoalsScreen({ navigate }: GoalsScreenProps) {
           variant="outline"
           onPress={() => navigate('campus')}
         />
+        {DEMO_TOOLS_ENABLED ? (
+          <Button
+            title="Demo Tools"
+            variant="outline"
+            onPress={() => navigate('demo')}
+          />
+        ) : null}
       </ScrollView>
 
       <View style={styles.tabs}>
