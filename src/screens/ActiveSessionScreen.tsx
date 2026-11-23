@@ -6,10 +6,12 @@ import {
 } from 'react-native';
 import { AreYouDoneScreen } from './AreYouDoneScreen';
 import { Button } from '../components/Button';
-import { PlantView } from '../components/PlantView';
+import { TimerClock } from '../components/TimerClock';
 import { ProgressBar } from '../components/ProgressBar';
 import { useSession } from '../session/useSession';
 import { colors, spacing } from '../theme';
+import { DEMO_TOOLS_ENABLED } from '../demo/config';
+import { addFakePickup, setDemoState, useDemoState } from '../demo/demoState';
 
 type ActiveSessionScreenProps = {
   lengthMinutes: number;
@@ -38,6 +40,7 @@ export function ActiveSessionScreen({
     finishSession,
   } = useSession(lengthMinutes, isPromptVisible);
   const hasEnded = useRef(false);
+  const demo = useDemoState();
 
   const endSession = () => {
     if (hasEnded.current) {
@@ -66,13 +69,14 @@ export function ActiveSessionScreen({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sessionInfo}>Single session · Main campus</Text>
-
+      <Text style={styles.sessionInfo}>
+        Single Session · {demo.onCampus ? 'Main Campus' : 'Off Campus'}
+      </Text>
       <View style={styles.center}>
-        <PlantView stage={2} />
+        <TimerClock progress={progress} />
         <Text style={styles.timer}>{formatTime(remainingSeconds)}</Text>
         <Text style={styles.timerCaption}>
-          of {formatTime(lengthMinutes * 60)} · Phone face down: yes
+          of {formatTime(lengthMinutes * 60)} · Phone face down: {demo.faceDown ? 'Yes' : 'No'}
         </Text>
         <ProgressBar
           value={progress}
@@ -81,12 +85,39 @@ export function ActiveSessionScreen({
         />
       </View>
 
-      <Button
-        title="End session"
-        variant="darkOutline"
-        onPress={onOpenPrompt}
-        style={styles.endButton}
-      />
+      <View style={styles.bottom}>
+        {DEMO_TOOLS_ENABLED ? (
+          <View style={styles.demoRow}>
+            <Button
+              title="Fake Pickup"
+              variant="darkOutline"
+              onPress={() => {
+                addFakePickup();
+                onOpenPrompt();
+              }}
+              style={styles.demoButton}
+            />
+            <Button
+              title={`Face Down: ${demo.faceDown ? 'Yes' : 'No'}`}
+              variant="darkOutline"
+              onPress={() => setDemoState({ faceDown: !demo.faceDown })}
+              style={styles.demoButton}
+            />
+            <Button
+              title={`Campus: ${demo.onCampus ? 'In' : 'Out'}`}
+              variant="darkOutline"
+              onPress={() => setDemoState({ onCampus: !demo.onCampus })}
+              style={styles.demoButton}
+            />
+          </View>
+        ) : null}
+        <Button
+          title="End Session"
+          variant="darkOutline"
+          onPress={onOpenPrompt}
+          style={styles.endButton}
+        />
+      </View>
     </View>
   );
 }
@@ -121,5 +152,16 @@ const styles = StyleSheet.create({
   },
   endButton: {
     minHeight: 56,
+  },
+    bottom: {
+    gap: spacing.sm,
+  },
+  demoRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+  demoButton: {
+    flex: 1,
+    minHeight: 44,
   },
 });

@@ -8,6 +8,7 @@ import {
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { colors, spacing } from '../theme';
+import { useDemoState } from '../demo/demoState';
 
 type SessionMode = 'single' | 'weekly';
 
@@ -28,6 +29,7 @@ export function StartSessionScreen({
 }: StartSessionScreenProps) {
   const [mode, setMode] = useState<SessionMode>('single');
   const [length, setLength] = useState(initialLength);
+  const demo = useDemoState();
 
   const adjustLength = (amount: number) => {
     setLength((current) =>
@@ -41,19 +43,19 @@ export function StartSessionScreen({
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>Start a session</Text>
+        <Text style={styles.pageTitle}>Start a Session</Text>
 
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>Mode</Text>
           <View style={styles.modeButtons}>
             <Button
-              title="Single session"
+              title="Single Session"
               variant={mode === 'single' ? 'primary' : 'outline'}
               onPress={() => setMode('single')}
               style={styles.modeButton}
             />
             <Button
-              title="Weekly goal"
+              title="Weekly Goal"
               variant={mode === 'weekly' ? 'primary' : 'outline'}
               onPress={() => setMode('weekly')}
               style={styles.modeButton}
@@ -85,12 +87,12 @@ export function StartSessionScreen({
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>Place</Text>
           <Text style={styles.description}>
-            Campus zone: Main campus (you are inside)
+            Campus Zone: Main Campus ({demo.onCampus ? 'You are inside' : 'You are Outside'})
           </Text>
         </Card>
 
         <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Start with</Text>
+          <Text style={styles.sectionTitle}>Start With</Text>
           <Text style={styles.description}>
             Button (default). NFC tap and voice are optional extras.
           </Text>

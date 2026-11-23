@@ -32,6 +32,10 @@ export function getDb(): Promise<SQLite.SQLiteDatabase> {
           target_minutes INTEGER NOT NULL,
           start_date TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS settings (
+          key TEXT PRIMARY KEY NOT NULL,
+          value TEXT NOT NULL
+        );
       `);
       return db;
     })();
