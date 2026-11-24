@@ -87,14 +87,9 @@ export function StartSessionScreen({
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>Place</Text>
           <Text style={styles.description}>
-            Campus Zone: Main Campus ({demo.onCampus ? 'You are inside' : 'You are Outside'})
-          </Text>
-        </Card>
-
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Start With</Text>
-          <Text style={styles.description}>
-            Button (default). NFC tap and voice are optional extras.
+            {demo.onCampus
+              ? 'On Campus (Inside A Saved Location)'
+              : 'Off Campus (Not Inside a Saved Location)'}
           </Text>
         </Card>
       </ScrollView>

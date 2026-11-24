@@ -40,6 +40,16 @@ export function plantImage(plant: PlantId, stage: PlantStage): ImageSourcePropTy
   return IMAGES[plant][stage];
 }
 
+const STAGE_LABELS: Record<PlantId, Record<PlantStage, string>> = {
+  tree: { 1: 'Seed', 2: 'Seedling', 3: 'Sapling', 4: 'Young Tree', 5: 'Mature Tree' },
+  floral: { 1: 'Seed', 2: 'Sprout', 3: 'Bud', 4: 'Blooming', 5: 'Full Bloom' },
+  cactus: { 1: 'Seed', 2: 'Sprout', 3: 'Small Cactus', 4: 'Young Cactus', 5: 'Mature Cactus' },
+};
+
+export function plantStageName(plant: PlantId, stage: PlantStage): string {
+  return STAGE_LABELS[plant][stage];
+}
+
 export function isPlantId(value: unknown): value is PlantId {
   return value === 'tree' || value === 'floral' || value === 'cactus';
 }

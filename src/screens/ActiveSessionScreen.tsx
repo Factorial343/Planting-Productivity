@@ -70,7 +70,7 @@ export function ActiveSessionScreen({
   return (
     <View style={styles.container}>
       <Text style={styles.sessionInfo}>
-        Single Session · {demo.onCampus ? 'Main Campus' : 'Off Campus'}
+        Single Session · {demo.onCampus ? 'On Campus' : 'Off Campus'}
       </Text>
       <View style={styles.center}>
         <TimerClock progress={progress} />
