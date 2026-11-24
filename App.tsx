@@ -19,6 +19,7 @@ import { DemoToolsScreen } from './src/screens/DemoToolsScreen';
 import { NewGoalScreen } from './src/screens/NewGoalScreen';
 import { colors, spacing } from './src/theme';
 import type { ScreenName } from './src/navigation/types';
+import { useLiveSignals } from './src/demo/useLiveSignals';
 
 const screenTitles: Record<Exclude<ScreenName, 'home'>, string> = {
   start: 'Start Focus',
@@ -37,6 +38,11 @@ export default function App() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const isActiveSession = screen === 'active';
 
+  useLiveSignals(
+    screen === 'start' || screen === 'active' || screen === 'prompt',
+    screen === 'active',
+    () => setScreen('prompt'),
+  );
   return (
     <View
       style={[
