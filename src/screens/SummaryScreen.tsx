@@ -36,7 +36,7 @@ export function SummaryScreen({
         <Text style={styles.pageTitle}>Session complete</Text>
 
         <Card style={styles.plantCard}>
-          <PlantView stage={stats.stage} />
+          <PlantView stage={stats.stage} plant={stats.plant}/>
           <Text style={styles.focusedHeadline}>
             +{focusedMinutes} min focused
           </Text>

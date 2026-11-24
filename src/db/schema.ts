@@ -36,6 +36,15 @@ export function getDb(): Promise<SQLite.SQLiteDatabase> {
           key TEXT PRIMARY KEY NOT NULL,
           value TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS goal_rounds (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          week_start INTEGER NOT NULL,
+          start_ms INTEGER NOT NULL,
+          target_minutes INTEGER NOT NULL,
+          plant TEXT NOT NULL,
+          completed_at INTEGER
+        );
+        CREATE INDEX IF NOT EXISTS idx_goal_rounds_week ON goal_rounds(week_start);
       `);
       return db;
     })();

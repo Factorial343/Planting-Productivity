@@ -6,4 +6,6 @@ export type ScreenName =
   | 'summary'
   | 'goals'
   | 'campus'
-  | 'demo';
+  | 'demo'
+  | 'demo'
+  | 'newgoal';

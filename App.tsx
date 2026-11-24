@@ -16,6 +16,7 @@ import { HomeScreen } from './src/screens/HomeScreen';
 import { StartSessionScreen } from './src/screens/StartSessionScreen';
 import { SummaryScreen } from './src/screens/SummaryScreen';
 import { DemoToolsScreen } from './src/screens/DemoToolsScreen';
+import { NewGoalScreen } from './src/screens/NewGoalScreen';
 import { colors, spacing } from './src/theme';
 import type { ScreenName } from './src/navigation/types';
 
@@ -26,7 +27,8 @@ const screenTitles: Record<Exclude<ScreenName, 'home'>, string> = {
   summary: 'Session Summary',
   goals: 'Goals',
   campus: 'Campus Setup',
-  demo: 'Demo Tools'
+  demo: 'Demo Tools',
+  newgoal: 'Start Another Goal'
 };
 
 export default function App() {
@@ -102,6 +104,8 @@ export default function App() {
           onSave={() => setScreen('home')}
           onCancel={() => setScreen('home')}
         />
+      ) : screen === 'newgoal' ? (
+        <NewGoalScreen onDone={() => setScreen('home')} />
       ) : screen === 'demo' ? (
        <DemoToolsScreen onBack={() => setScreen('goals')} />
       ) : (

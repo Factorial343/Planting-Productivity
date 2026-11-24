@@ -6,7 +6,7 @@ export async function addTestSession(minutes: number): Promise<void> {
   const now = Date.now();
   await sessionsRepo.insert({
     mode: 'single',
-    startTime: now - minutes * 60000,
+    startTime: now,
     endTime: now,
     plannedMs: minutes * 60000,
     focusedMs: minutes * 60000,
@@ -20,8 +20,8 @@ export async function addTestSession(minutes: number): Promise<void> {
 export async function resetSessions(): Promise<void> {
   const db = await getDb();
   await db.runAsync('DELETE FROM sessions');
-}
-
+  await db.runAsync('DELETE FROM goal_rounds');
+};
 
 // Creates one placeholder campus if none exist. Returns false if one already exists.
 export async function addDemoCampus(): Promise<boolean> {
@@ -29,4 +29,4 @@ export async function addDemoCampus(): Promise<boolean> {
   if (existing.length > 0) return false;
   await campusesRepo.save({ name: 'Demo Campus', latitude: 0, longitude: 0, radiusM: 100 });
   return true;
-}
+};

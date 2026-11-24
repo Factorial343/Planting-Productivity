@@ -23,6 +23,8 @@ type HomeScreenProps = {
 export function HomeScreen({ navigate }: HomeScreenProps) {
   const stats = useStats();
   const stageName = STAGE_NAMES[stats.stage];
+  const goalMinutes = stats.currentGoal?.minutes ?? stats.weekMinutes;
+  const goalTarget = stats.currentGoal?.targetMinutes ?? stats.weekTargetMinutes;
 
   return (
     <View style={styles.container}>
@@ -36,7 +38,7 @@ export function HomeScreen({ navigate }: HomeScreenProps) {
         </View>
 
         <Card style={styles.plantCard}>
-          <PlantView stage={stats.stage} />
+          <PlantView stage={stats.stage} plant={stats.plant}/>
           <Text style={styles.plantName}>{stageName}</Text>
           <Text style={styles.plantProgress}>
             Stage {stats.stage} of 5 ·{' '}
@@ -46,26 +48,43 @@ export function HomeScreen({ navigate }: HomeScreenProps) {
           </Text>
         </Card>
 
-       <Card style={styles.weeklyCard}>
-        <Text style={styles.sectionTitle}>Weekly goal</Text>
-        <Text style={styles.goalText}>
-          {formatDuration(stats.weekMinutes)} of {formatDuration(stats.weekTargetMinutes)}
-         </Text>
-        <ProgressBar
-           value={goalProgress(stats.weekMinutes, stats.weekTargetMinutes)}
-        />
+        <Card style={styles.weeklyCard}>
+          <Text style={styles.sectionTitle}>
+            {stats.rounds.length > 1 ? `Goal ${stats.currentGoal?.number}` : 'Weekly Goal'}
+          </Text>
+          <Text style={styles.goalText}>
+            {formatDuration(goalMinutes)} of {formatDuration(goalTarget)}
+          </Text>
+          <ProgressBar value={goalProgress(goalMinutes, goalTarget)} />
+          {stats.canStartAnother ? (
+            <Button
+              title="Start Another Goal"
+              variant="outline"
+              onPress={() => navigate('newgoal')}
+            />
+          ) : null}
         </Card>
 
         <Card style={styles.plantsCard}>
           <Text style={styles.sectionTitle}>This week&apos;s plants</Text>
           <View style={styles.plantsRow}>
-            {Array.from({ length: 5 }, (_, index) => (
-              <View
-                key={index}
-                accessibilityLabel={`Plant ${index + 1} this week`}
-                style={styles.plantTile}
-              />
-            ))}
+            {Array.from({ length: 5 }, (_, index) => {
+              const goal = stats.rounds[index];
+              return goal ? (
+                <PlantView
+                  key={goal.id}
+                  stage={goal.stage}
+                  plant={goal.plant}
+                  size={48}
+                />
+              ) : (
+                <View
+                  key={`empty-${index}`}
+                  accessibilityLabel={`Plant ${index + 1} this week`}
+                  style={styles.plantTile}
+                />
+              );
+            })}
           </View>
         </Card>
       </ScrollView>
