@@ -117,7 +117,7 @@ export function useStats(refreshKey = 0): Stats {
         recent: all.slice(0, 5).map((s) => ({
           id: s.id,
           label: `${DAYS[new Date(s.startTime).getDay()]} · ${
-            s.campusId === null ? 'Off campus' : names.get(s.campusId) ?? 'Campus'
+            s.campusId === null ? 'Off Campus' : names.get(s.campusId) ?? 'Campus'
           }`,
           minutes: msToMinutes(s.focusedMs),
         })),

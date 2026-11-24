@@ -8,11 +8,11 @@ import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { PlantView } from '../components/PlantView';
 import { ProgressBar } from '../components/ProgressBar';
-import { STAGE_NAMES } from '../avatar/avatar';
 import { formatDuration, goalProgress } from '../goals/goalMath';
 import { useStats } from '../goals/useStats';
 import type { ScreenName } from '../navigation/types';
 import { colors, radius, spacing } from '../theme';
+import { plantStageName } from '../avatar/plants';
 
 type HomeScreenProps = {
   navigate: (screen: ScreenName) => void;
@@ -22,7 +22,7 @@ type HomeScreenProps = {
 
 export function HomeScreen({ navigate }: HomeScreenProps) {
   const stats = useStats();
-  const stageName = STAGE_NAMES[stats.stage];
+  const stageName = plantStageName(stats.plant, stats.stage);
   const goalMinutes = stats.currentGoal?.minutes ?? stats.weekMinutes;
   const goalTarget = stats.currentGoal?.targetMinutes ?? stats.weekTargetMinutes;
 
