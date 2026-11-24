@@ -19,3 +19,19 @@ export function minutesToNextStage(totalMinutes: number): number | null {
   if (stage === 5) return null;
   return STAGE_THRESHOLDS[(stage + 1) as PlantStage] - totalMinutes;
 }
+
+// Stage from progress toward a goal. Stage 5 only appears at 100%.
+export function getGoalStage(doneMinutes: number, targetMinutes: number): PlantStage {
+  if (targetMinutes <= 0) return 1;
+  if (doneMinutes >= targetMinutes) return 5;
+  const quarters = Math.floor((Math.max(0, doneMinutes) * 4) / targetMinutes);
+  return (1 + quarters) as PlantStage;
+}
+
+// Minutes still needed to reach the next stage of the goal, or null at Stage 5.
+export function minutesToNextGoalStage(doneMinutes: number, targetMinutes: number): number | null {
+  if (targetMinutes <= 0) return null;
+  const stage = getGoalStage(doneMinutes, targetMinutes);
+  if (stage === 5) return null;
+  return Math.ceil((stage * targetMinutes) / 4 - doneMinutes);
+}

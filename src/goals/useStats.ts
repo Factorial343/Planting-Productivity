@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { campusesRepo, goalsRepo, sessionsRepo } from '../db';
-import { getAvatarStage, minutesToNextStage } from '../avatar/avatar';
+import { getGoalStage, minutesToNextGoalStage } from '../avatar/avatar';
 import { monthRange, msToMinutes, weekRange } from './goalMath';
 import type { PlantStage } from '../types';
 
@@ -43,12 +43,11 @@ export function useStats(refreshKey = 0): Stats {
       const week = weekRange(now);
       const month = monthRange(now);
 
-      const [today, weekMs, monthMs, totalMs, weekGoal, monthGoal, all, campuses] =
+      const [today, weekMs, monthMs, weekGoal, monthGoal, all, campuses] =
         await Promise.all([
           sessionsRepo.totalFocusedMs(dayStart.getTime(), dayEnd.getTime()),
           sessionsRepo.totalFocusedMs(week.from, week.to),
           sessionsRepo.totalFocusedMs(month.from, month.to),
-          sessionsRepo.totalFocusedMs(0, now + 1),
           goalsRepo.getActive('week'),
           goalsRepo.getActive('month'),
           sessionsRepo.listBetween(0, now + 1),
@@ -56,15 +55,16 @@ export function useStats(refreshKey = 0): Stats {
         ]);
 
       const names = new Map(campuses.map((c) => [c.id, c.name]));
-      const totalMinutes = msToMinutes(totalMs);
+      const weekMin = msToMinutes(weekMs);
+      const weekTarget = weekGoal?.targetMinutes ?? DEFAULT_WEEK_TARGET_MIN;
       const next: Stats = {
         todayMinutes: msToMinutes(today),
         weekMinutes: msToMinutes(weekMs),
         monthMinutes: msToMinutes(monthMs),
         weekTargetMinutes: weekGoal?.targetMinutes ?? DEFAULT_WEEK_TARGET_MIN,
         monthTargetMinutes: monthGoal?.targetMinutes ?? DEFAULT_MONTH_TARGET_MIN,
-        stage: getAvatarStage(totalMinutes),
-        minutesToNext: minutesToNextStage(totalMinutes),
+        stage: getGoalStage(weekMin, weekTarget),
+        minutesToNext: minutesToNextGoalStage(weekMin, weekTarget),
         recent: all.slice(0, 5).map((s) => ({
           id: s.id,
           label: `${DAYS[new Date(s.startTime).getDay()]} · ${
