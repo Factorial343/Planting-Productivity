@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.border,
   },
-  tileSelected: { borderColor: colors.primary, backgroundColor: '#E8F3EC' },
+  tileSelected: { borderColor: colors.primary, backgroundColor: '#DCEFE3' },
   image: { width: 84, height: 84 },
   name: { color: colors.text, fontSize: 15, fontWeight: '700' },
   blurb: { color: colors.mutedText, fontSize: 12, textAlign: 'center' },

@@ -9,7 +9,7 @@ type ProgressBarProps = {
 
 export function ProgressBar({
   value,
-  trackColor = '#E0E5E1',
+  trackColor = '#D3E6DA',
   fillColor = colors.primary,
 }: ProgressBarProps) {
   const progress = Math.max(0, Math.min(1, value));

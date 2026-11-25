@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radius.lg,
-    backgroundColor: '#E8EEEA',
+    backgroundColor: '#EEF7F1',
   },
   previewCircle: {
     borderWidth: 2,

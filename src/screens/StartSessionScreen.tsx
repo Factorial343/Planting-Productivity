@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
+    flexGrow: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.md,
@@ -128,6 +129,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   card: {
+    flexGrow: 1,
+    justifyContent: 'center',
     gap: spacing.md,
   },
   sectionTitle: {
