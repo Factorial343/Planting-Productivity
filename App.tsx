@@ -117,7 +117,7 @@ export default function App() {
       ) : (
         <View style={styles.placeholder}>
           <Text style={styles.title}>{screenTitles[screen]}</Text>
-          <Button title="Back to garden" onPress={() => setScreen('home')} />
+          <Button title="Back to Garden" onPress={() => setScreen('home')} />
         </View>
       )}
     </View>

@@ -50,7 +50,7 @@ export function GoalsScreen({ navigate }: GoalsScreenProps) {
       setRefreshKey((k) => k + 1);
       setEditing(false);
     } catch (e) {
-      console.error('Failed to save goals', e);
+      console.error('Failed to Save Goals', e);
     }
   };
   
@@ -60,26 +60,26 @@ export function GoalsScreen({ navigate }: GoalsScreenProps) {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>Goals and history</Text>
+        <Text style={styles.pageTitle}>Goals and History</Text>
 
         <Card style={styles.goalCard}>
-          <Text style={styles.cardTitle}>This week</Text>
+          <Text style={styles.cardTitle}>This Week</Text>
           <Text style={styles.goalValue}>
           {formatDuration(stats.weekMinutes)} of {formatDuration(stats.weekTargetMinutes)}          </Text>
           <ProgressBar value={goalProgress(stats.weekMinutes, stats.weekTargetMinutes)} />
         </Card>
 
         <Card style={styles.goalCard}>
-          <Text style={styles.cardTitle}>This month</Text>
+          <Text style={styles.cardTitle}>This Month</Text>
           <Text style={styles.goalValue}>
           {formatDuration(stats.monthMinutes)} of {formatDuration(stats.monthTargetMinutes)}              </Text>
           <ProgressBar value={goalProgress(stats.monthMinutes, stats.monthTargetMinutes)} />
         </Card>
 
         <Card style={styles.sessionsCard}>
-          <Text style={styles.cardTitle}>Recent sessions</Text>
+          <Text style={styles.cardTitle}>Recent Sessions</Text>
           {stats.recent.length === 0 ? (
-           <Text style={styles.sessionLabel}>No sessions yet.</Text>
+           <Text style={styles.sessionLabel}>No Sessions Yet</Text>
           ) : (
             stats.recent.map((session) => (
               <View key={session.id} style={styles.sessionRow}>
@@ -92,31 +92,31 @@ export function GoalsScreen({ navigate }: GoalsScreenProps) {
 
         {editing ? (
           <Card style={styles.goalCard}>
-            <Text style={styles.cardTitle}>Weekly target: {weekHours} h</Text>
+            <Text style={styles.cardTitle}>Weekly Target: {weekHours} h</Text>
             <View style={styles.stepper}>
               <Button title="-" variant="outline" disabled={weekHours <= 1}
                 onPress={() => setWeekHours((h) => h - 1)} style={styles.stepButton} />
               <Button title="+" variant="outline" disabled={weekHours >= 60}
                 onPress={() => setWeekHours((h) => h + 1)} style={styles.stepButton} />
             </View>
-            <Text style={styles.cardTitle}>Monthly target: {monthHours} h</Text>
+            <Text style={styles.cardTitle}>Monthly Target: {monthHours} h</Text>
             <View style={styles.stepper}>
               <Button title="-" variant="outline" disabled={monthHours <= 1}
                 onPress={() => setMonthHours((h) => h - 1)} style={styles.stepButton} />
               <Button title="+" variant="outline" disabled={monthHours >= 250}
                 onPress={() => setMonthHours((h) => h + 1)} style={styles.stepButton} />
             </View>
-            <Text style={styles.cardTitle}>Your plant</Text>
+            <Text style={styles.cardTitle}>Your Plant</Text>
             <PlantPicker value={plant} onChange={setPlant} />
-            <Button title="Save goals" onPress={saveGoals} />
+            <Button title="Save Goals" onPress={saveGoals} />
             <Button title="Cancel" variant="outline" onPress={() => setEditing(false)} />
           </Card>
         ) : (
-          <Button title="Edit goals" variant="outline" onPress={startEditing} />
+          <Button title="Edit Goals" variant="outline" onPress={startEditing} />
         )}
 
         <Button
-          title="Edit campus zone"
+          title="Edit Campus Zone"
           variant="outline"
           onPress={() => navigate('campus')}
         />
@@ -138,7 +138,7 @@ export function GoalsScreen({ navigate }: GoalsScreenProps) {
         />
         <Button
           title="Goals"
-          variant="outline"
+          variant="primary" 
           onPress={() => navigate('goals')}
           style={styles.tabButton}
         />

@@ -10,6 +10,7 @@ import { PlantView } from '../components/PlantView';
 import { ProgressBar } from '../components/ProgressBar';
 import { formatDuration, goalProgress } from '../goals/goalMath';
 import { useStats } from '../goals/useStats';
+import { useDemoState } from '../demo/demoState';
 import { colors, spacing } from '../theme';
 
 type SummaryScreenProps = {
@@ -25,7 +26,11 @@ export function SummaryScreen({
 }: SummaryScreenProps) {
   const focusedMinutes = Math.floor(elapsedSeconds / 60);
   const stats = useStats();
-  const weeklyProgress = goalProgress(stats.weekMinutes, stats.weekTargetMinutes);
+  const goalMinutes = stats.currentGoal?.minutes ?? stats.weekMinutes;
+  const goalTarget = stats.currentGoal?.targetMinutes ?? stats.weekTargetMinutes;
+  const goalLabel = stats.rounds.length > 1 ? `Goal ${stats.currentGoal?.number}` : 'Weekly Goal';
+  const weeklyProgress = goalProgress(goalMinutes, goalTarget);
+  const pickups = useDemoState().pickups;
 
   return (
     <View style={styles.container}>
@@ -33,15 +38,15 @@ export function SummaryScreen({
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.pageTitle}>Session complete</Text>
+        <Text style={styles.pageTitle}>Session Complete</Text>
 
         <Card style={styles.plantCard}>
           <PlantView stage={stats.stage} plant={stats.plant}/>
           <Text style={styles.focusedHeadline}>
-            +{focusedMinutes} min focused
+            +{focusedMinutes} min Focused
           </Text>
           <Text style={styles.plantProgress}>
-            Your plant is at Stage {stats.stage} of 5
+            Your Plant is at Stage {stats.stage} of 5
           </Text>
         </Card>
 
@@ -52,12 +57,12 @@ export function SummaryScreen({
           </View>
           <View style={styles.statRow}>
             <Text style={styles.statLabel}>Pickups</Text>
-            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statValue}>{pickups}</Text>
           </View>
           <View style={styles.statRow}>
-            <Text style={styles.statLabel}>Weekly goal</Text>
+            <Text style={styles.statLabel}>{goalLabel}</Text>
             <Text style={styles.statValue}>
-              {formatDuration(stats.weekMinutes)} of {formatDuration(stats.weekTargetMinutes)}
+              {formatDuration(goalMinutes)} of {formatDuration(goalTarget)}
             </Text>
           </View>
           <ProgressBar value={weeklyProgress} />
@@ -66,12 +71,12 @@ export function SummaryScreen({
 
       <View style={styles.footer}>
         <Button
-          title="Back to garden"
+          title="Back to Garden"
           onPress={onBackToGarden}
           style={styles.footerButton}
         />
         <Button
-          title="Start another"
+          title="Start Another"
           variant="outline"
           onPress={onStartAnother}
           style={styles.footerButton}
@@ -86,6 +91,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
+    flexGrow: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.md,
@@ -98,6 +104,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   plantCard: {
+    flexGrow: 1,
     minHeight: 264,
     alignItems: 'center',
     justifyContent: 'center',
@@ -115,6 +122,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   statsCard: {
+    flexGrow: 1,
+    justifyContent: 'center',
     gap: spacing.md,
   },
   statRow: {

@@ -33,18 +33,18 @@ export function HomeScreen({ navigate }: HomeScreenProps) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.pageTitle}>My garden</Text>
+          <Text style={styles.pageTitle}>My Garden</Text>
           <Text style={styles.today}>Today: {stats.todayMinutes} min</Text>
         </View>
 
         <Card style={styles.plantCard}>
-          <PlantView stage={stats.stage} plant={stats.plant}/>
+          <PlantView stage={stats.stage} plant={stats.plant} size={275}/>
           <Text style={styles.plantName}>{stageName}</Text>
           <Text style={styles.plantProgress}>
             Stage {stats.stage} of 5 ·{' '}
             {stats.minutesToNext === null
-              ? 'Fully grown'
-              : `${stats.minutesToNext} min to next stage`}
+              ? 'Fully Grown'
+              : `${stats.minutesToNext} min to Next Stage`}
           </Text>
         </Card>
 
@@ -66,7 +66,7 @@ export function HomeScreen({ navigate }: HomeScreenProps) {
         </Card>
 
         <Card style={styles.plantsCard}>
-          <Text style={styles.sectionTitle}>This week&apos;s plants</Text>
+          <Text style={styles.sectionTitle}>This Week&apos;s Plants</Text>
           <View style={styles.plantsRow}>
             {Array.from({ length: 5 }, (_, index) => {
               const goal = stats.rounds[index];
@@ -91,14 +91,14 @@ export function HomeScreen({ navigate }: HomeScreenProps) {
 
       <View style={styles.footer}>
         <Button
-          title="Start focus"
+          title="Start Session"
           onPress={() => navigate('start')}
           style={styles.startButton}
         />
         <View style={styles.tabs}>
           <Button
             title="Garden"
-            variant="outline"
+            variant="primary" 
             onPress={() => navigate('home')}
             style={styles.tabButton}
           />
@@ -119,13 +119,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
+    flexGrow: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
     paddingBottom: spacing.md,
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   header: {
-    minHeight: 48,
+    minHeight: 40,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -140,10 +141,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   plantCard: {
+    flexGrow: 2,
     minHeight: 236,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
   },
   plantName: {
     marginTop: spacing.sm,
@@ -158,6 +160,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   weeklyCard: {
+    flexGrow: 1,
+    justifyContent: 'center',
     gap: spacing.sm,
   },
   sectionTitle: {
@@ -170,6 +174,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   plantsCard: {
+    flexGrow: 1,
+    justifyContent: 'center',
     gap: spacing.sm,
   },
   plantsRow: {
