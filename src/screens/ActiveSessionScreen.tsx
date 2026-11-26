@@ -8,16 +8,21 @@ import { AreYouDoneScreen } from './AreYouDoneScreen';
 import { Button } from '../components/Button';
 import { TimerClock } from '../components/TimerClock';
 import { ProgressBar } from '../components/ProgressBar';
-import { useSession } from '../session/useSession';
 import { colors, spacing } from '../theme';
 import { DEMO_TOOLS_ENABLED } from '../demo/config';
-import { addFakePickup, setDemoState, useDemoState } from '../demo/demoState';
+import { setDemoState, useDemoState } from '../demo/demoState';
+import type { SessionEndReason } from '../types';
 
 type ActiveSessionScreenProps = {
   lengthMinutes: number;
-  onEnd: (elapsedSeconds: number) => void;
+  elapsedSeconds: number;
+  remainingSeconds: number;
+  progress: number;
+  pauseReason: 'pickup' | 'manual' | null;
+  onEnd: (elapsedSeconds: number, reason: SessionEndReason) => void;
   isPromptVisible: boolean;
-  onOpenPrompt: () => void;
+  onPause: () => void;
+  onPickup: () => void;
   onKeepGoing: () => void;
 };
 
@@ -29,31 +34,31 @@ function formatTime(seconds: number) {
 
 export function ActiveSessionScreen({
   lengthMinutes,
+  elapsedSeconds,
+  remainingSeconds,
+  progress,
+  pauseReason,
   onEnd,
   isPromptVisible,
-  onOpenPrompt,
+  onPause,
+  onPickup,
   onKeepGoing,
 }: ActiveSessionScreenProps) {
-  const {
-    remainingSeconds,
-    progress,
-    finishSession,
-  } = useSession(lengthMinutes, isPromptVisible);
   const hasEnded = useRef(false);
   const demo = useDemoState();
 
-  const endSession = () => {
+  const endSession = (reason: SessionEndReason) => {
     if (hasEnded.current) {
       return;
     }
 
     hasEnded.current = true;
-    onEnd(finishSession());
+    onEnd(elapsedSeconds, reason);
   };
 
   useEffect(() => {
     if (remainingSeconds === 0) {
-      endSession();
+      endSession('completed');
     }
   }, [remainingSeconds]);
 
@@ -61,7 +66,7 @@ export function ActiveSessionScreen({
     return (
       <AreYouDoneScreen
         remainingSeconds={remainingSeconds}
-        onYes={endSession}
+        onYes={() => endSession(pauseReason === 'pickup' ? 'pickup_confirmed' : 'user_ended')}
         onKeepGoing={onKeepGoing}
       />
     );
@@ -91,10 +96,7 @@ export function ActiveSessionScreen({
             <Button
               title="Fake Pickup"
               variant="darkOutline"
-              onPress={() => {
-                addFakePickup();
-                onOpenPrompt();
-              }}
+              onPress={onPickup}
               style={styles.demoButton}
             />
             <Button
@@ -114,7 +116,7 @@ export function ActiveSessionScreen({
         <Button
           title="End Session"
           variant="darkOutline"
-          onPress={onOpenPrompt}
+          onPress={onPause}
           style={styles.endButton}
         />
       </View>

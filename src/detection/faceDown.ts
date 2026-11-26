@@ -5,7 +5,7 @@ export const DEFAULT_ORIENTATION_CONFIG = {
   faceDownLeaveZ: -6,
   faceUpEnterZ: 8,
   faceUpLeaveZ: 6,
-  confirmationDelayMs: 300,
+  confirmationDelayMs: 10000,
 } as const;
 
 export type OrientationConfig = {

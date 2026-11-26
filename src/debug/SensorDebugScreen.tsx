@@ -24,7 +24,11 @@ const SCENARIOS = [
 
 type Scenario = (typeof SCENARIOS)[number];
 
-export function SensorDebugScreen() {
+type SensorDebugScreenProps = {
+  onBack?: () => void;
+};
+
+export function SensorDebugScreen({ onBack }: SensorDebugScreenProps = {}) {
   const [scenario, setScenario] = useState<Scenario>('flat-up');
   const [isRecording, setIsRecording] = useState(false);
   const [events, setEvents] = useState<SensorEvent[]>([]);
@@ -72,6 +76,9 @@ export function SensorDebugScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
+      {onBack ? (
+        <Button title="Back" variant="outline" onPress={onBack} />
+      ) : null}
       <Text style={styles.title}>Sensor debug</Text>
 
       <Card style={styles.readingCard}>

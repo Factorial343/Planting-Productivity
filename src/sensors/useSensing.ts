@@ -91,7 +91,11 @@ export function useSensing({
         at,
       });
       pickupStateRef.current = pickupResult.state;
-      if (pickupResult.event) {
+      const faceDownPending =
+        orientationResult.state.pendingOrientation === 'face-down';
+      const faceDownConfirmed =
+        orientationResult.state.orientation === 'face-down';
+      if (pickupResult.event && !faceDownPending && !faceDownConfirmed) {
         setPickupCount((count) => count + 1);
         onEventRef.current(pickupResult.event);
       }

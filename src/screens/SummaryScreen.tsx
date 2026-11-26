@@ -10,17 +10,18 @@ import { PlantView } from '../components/PlantView';
 import { ProgressBar } from '../components/ProgressBar';
 import { formatDuration, goalProgress } from '../goals/goalMath';
 import { useStats } from '../goals/useStats';
-import { useDemoState } from '../demo/demoState';
 import { colors, spacing } from '../theme';
 
 type SummaryScreenProps = {
   elapsedSeconds: number;
+  pickupCount: number;
   onBackToGarden: () => void;
   onStartAnother: () => void;
 };
 
 export function SummaryScreen({
   elapsedSeconds,
+  pickupCount,
   onBackToGarden,
   onStartAnother,
 }: SummaryScreenProps) {
@@ -30,8 +31,6 @@ export function SummaryScreen({
   const goalTarget = stats.currentGoal?.targetMinutes ?? stats.weekTargetMinutes;
   const goalLabel = stats.rounds.length > 1 ? `Goal ${stats.currentGoal?.number}` : 'Weekly Goal';
   const weeklyProgress = goalProgress(goalMinutes, goalTarget);
-  const pickups = useDemoState().pickups;
-
   return (
     <View style={styles.container}>
       <ScrollView
@@ -57,7 +56,7 @@ export function SummaryScreen({
           </View>
           <View style={styles.statRow}>
             <Text style={styles.statLabel}>Pickups</Text>
-            <Text style={styles.statValue}>{pickups}</Text>
+            <Text style={styles.statValue}>{pickupCount}</Text>
           </View>
           <View style={styles.statRow}>
             <Text style={styles.statLabel}>{goalLabel}</Text>

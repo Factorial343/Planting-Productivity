@@ -1,6 +1,7 @@
 import { campusesRepo, sessionsRepo } from './src/db';
 import { DEMO_TOOLS_ENABLED } from './src/demo/config';
-import { getDemoState, resetPickups } from './src/demo/demoState';import { useState } from 'react';
+import { getDemoState, resetPickups } from './src/demo/demoState';
+import { useCallback, useState } from 'react';
 import {
   StatusBar as NativeStatusBar,
   StyleSheet,
@@ -20,6 +21,11 @@ import { NewGoalScreen } from './src/screens/NewGoalScreen';
 import { colors, spacing } from './src/theme';
 import type { ScreenName } from './src/navigation/types';
 import { useLiveSignals } from './src/demo/useLiveSignals';
+import { useSession } from './src/session/useSession';
+import { usePickupNotification } from './src/notifications/usePickupNotification';
+import type { SessionEndReason } from './src/types';
+import { SensorDebugScreen } from './src/debug/SensorDebugScreen';
+import { LocationDebugScreen } from './src/debug/LocationDebugScreen';
 
 const screenTitles: Record<Exclude<ScreenName, 'home'>, string> = {
   start: 'Start Focus',
@@ -29,6 +35,8 @@ const screenTitles: Record<Exclude<ScreenName, 'home'>, string> = {
   goals: 'Goals',
   campus: 'Campus Setup',
   demo: 'Demo Tools',
+  sensorDebug: 'Sensor Debug',
+  locationDebug: 'Location Debug',
   newgoal: 'Start Another Goal'
 };
 
@@ -36,12 +44,70 @@ export default function App() {
   const [screen, setScreen] = useState<ScreenName>('home');
   const [sessionLength, setSessionLength] = useState(25);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [summaryPickups, setSummaryPickups] = useState(0);
   const isActiveSession = screen === 'active';
+  const session = useSession(sessionLength);
+
+  const showPrompt = useCallback(() => {
+    setScreen('prompt');
+  }, []);
+
+  const finishSession = useCallback(async (reason: SessionEndReason) => {
+    const elapsed = session.end();
+    const now = Date.now();
+    setElapsedSeconds(elapsed);
+    setSummaryPickups(session.session.pickupCount);
+
+    if (elapsed > 0) {
+      try {
+        let campusId: number | null = null;
+        if (DEMO_TOOLS_ENABLED && getDemoState().onCampus) {
+          const campuses = await campusesRepo.list();
+          campusId = campuses[0]?.id ?? null;
+        } else if (session.session.campusId !== null) {
+          campusId = session.session.campusId;
+        }
+
+        await sessionsRepo.insert({
+          mode: 'single',
+          startTime: session.session.startedAt ?? now - elapsed * 1000,
+          endTime: now,
+          plannedMs: sessionLength * 60000,
+          focusedMs: elapsed * 1000,
+          pickupCount: session.session.pickupCount,
+          campusId,
+          endReason: reason,
+        });
+      } catch (e) {
+        console.error('Failed to save session', e);
+      }
+    }
+    setScreen('summary');
+  }, [session.end, session.session.pickupCount, session.session.campusId, session.session.startedAt, sessionLength]);
+
+  const handleNotificationAction = useCallback((action: 'done' | 'keep_going' | 'open_prompt') => {
+    if (action === 'keep_going') {
+      session.keepGoing();
+      setScreen('active');
+    } else if (action === 'open_prompt') {
+      setScreen('prompt');
+    } else {
+      void finishSession('pickup_confirmed');
+    }
+  }, [session.keepGoing, finishSession]);
+
+  const notification = usePickupNotification(handleNotificationAction);
+
+  const handlePickup = useCallback(() => {
+    session.pickup();
+    showPrompt();
+    void notification.showPickupPrompt();
+  }, [session.pickup, showPrompt, notification.showPickupPrompt]);
 
   useLiveSignals(
     screen === 'start' || screen === 'active' || screen === 'prompt',
     screen === 'active',
-    () => setScreen('prompt'),
+    handlePickup,
   );
   return (
     <View
@@ -56,9 +122,17 @@ export default function App() {
       ) : screen === 'start' ? (
         <StartSessionScreen
           initialLength={sessionLength}
-          onBegin={(lengthMinutes) => {
+          onBegin={async (lengthMinutes) => {
             resetPickups();
             setSessionLength(lengthMinutes);
+            let campusId: number | null = null;
+            try {
+              const campuses = await campusesRepo.list();
+              campusId = campuses[0]?.id ?? null;
+            } catch (e) {
+              console.error('Failed to load campus for session', e);
+            }
+            session.start(lengthMinutes, 'single', campusId);
             setScreen('active');
           }}
           onCancel={() => setScreen('home')}
@@ -66,40 +140,29 @@ export default function App() {
       ) : screen === 'active' || screen === 'prompt' ? (
         <ActiveSessionScreen
           lengthMinutes={sessionLength}
+          elapsedSeconds={session.elapsedSeconds}
+          remainingSeconds={session.remainingSeconds}
+          progress={session.progress}
+          pauseReason={session.session.pauseReason}
           isPromptVisible={screen === 'prompt'}
-          onOpenPrompt={() => setScreen('prompt')}
-          onKeepGoing={() => setScreen('active')}
-          onEnd={async (elapsed) => {
-            setElapsedSeconds(elapsed);
-            if (elapsed > 0) {
-              const now = Date.now();
-              try {
-                const demo = getDemoState();
-                let campusId: number | null = null;
-                if (DEMO_TOOLS_ENABLED && demo.onCampus) {
-                  const campuses = await campusesRepo.list();
-                  campusId = campuses[0]?.id ?? null;
-                }
-                await sessionsRepo.insert({
-                  mode: 'single',
-                  startTime: now - elapsed * 1000,
-                  endTime: now,
-                  plannedMs: sessionLength * 60000,
-                  focusedMs: elapsed * 1000,
-                  pickupCount: DEMO_TOOLS_ENABLED ? demo.pickups : 0,
-                  campusId,
-                  endReason: elapsed >= sessionLength * 60 ? 'completed' : 'user_ended',
-                });
-              } catch (e) {
-                console.error('Failed to save session', e);
-              }
-            }
-            setScreen('summary');
+          onPause={() => {
+            session.pause();
+            showPrompt();
+          }}
+          onPickup={handlePickup}
+          onKeepGoing={() => {
+            session.keepGoing();
+            notification.dismissPickupPrompt();
+            setScreen('active');
+          }}
+          onEnd={async (elapsed, reason: SessionEndReason) => {
+            await finishSession(reason);
           }}
         />
       ) : screen === 'summary' ? (
         <SummaryScreen
           elapsedSeconds={elapsedSeconds}
+          pickupCount={summaryPickups}
           onBackToGarden={() => setScreen('home')}
           onStartAnother={() => setScreen('start')}
         />
@@ -113,7 +176,15 @@ export default function App() {
       ) : screen === 'newgoal' ? (
         <NewGoalScreen onDone={() => setScreen('home')} />
       ) : screen === 'demo' ? (
-       <DemoToolsScreen onBack={() => setScreen('goals')} />
+       <DemoToolsScreen
+         onBack={() => setScreen('goals')}
+         onOpenSensorDebug={() => setScreen('sensorDebug')}
+         onOpenLocationDebug={() => setScreen('locationDebug')}
+       />
+      ) : screen === 'sensorDebug' ? (
+        <SensorDebugScreen onBack={() => setScreen('demo')} />
+      ) : screen === 'locationDebug' ? (
+        <LocationDebugScreen onBack={() => setScreen('demo')} />
       ) : (
         <View style={styles.placeholder}>
           <Text style={styles.title}>{screenTitles[screen]}</Text>

@@ -7,5 +7,6 @@ export type ScreenName =
   | 'goals'
   | 'campus'
   | 'demo'
-  | 'demo'
+  | 'sensorDebug'
+  | 'locationDebug'
   | 'newgoal';

@@ -5,56 +5,56 @@ import {
 } from './faceDown';
 
 describe('orientation detection', () => {
-  test('confirms flat face-up orientation after 300 ms', () => {
+  test('confirms flat face-up orientation after 10 seconds', () => {
     let state = createOrientationState();
 
     let result = stepOrientation(state, { z: 9.8, at: 0 });
     expect(result.event).toBeNull();
     state = result.state;
 
-    result = stepOrientation(state, { z: 9.8, at: 299 });
+    result = stepOrientation(state, { z: 9.8, at: 9999 });
     expect(result.event).toBeNull();
     state = result.state;
 
-    result = stepOrientation(state, { z: 9.8, at: 300 });
+    result = stepOrientation(state, { z: 9.8, at: 10000 });
     expect(result.event).toEqual({
       type: 'ORIENTATION_CHANGED',
       orientation: 'face-up',
-      at: 300,
+      at: 10000,
     });
   });
 
-  test('confirms flat face-down orientation after 300 ms', () => {
+  test('confirms flat face-down orientation after 10 seconds', () => {
     let state = createOrientationState();
 
     let result = stepOrientation(state, { z: -9.8, at: 0 });
     expect(result.event).toBeNull();
     state = result.state;
 
-    result = stepOrientation(state, { z: -9.8, at: 300 });
+    result = stepOrientation(state, { z: -9.8, at: 10000 });
     expect(result.event).toEqual({
       type: 'ORIENTATION_CHANGED',
       orientation: 'face-down',
-      at: 300,
+      at: 10000,
     });
   });
 
-  test('ignores brief spikes shorter than 300 ms', () => {
+  test('ignores brief spikes shorter than 10 seconds', () => {
     let state = createOrientationState();
 
     let result = stepOrientation(state, { z: 9, at: 0 });
     state = result.state;
-    result = stepOrientation(state, { z: 0, at: 299 });
+    result = stepOrientation(state, { z: 0, at: 9999 });
     expect(result.event).toBeNull();
     state = result.state;
 
-    result = stepOrientation(state, { z: 9, at: 400 });
+    result = stepOrientation(state, { z: 9, at: 10000 });
     state = result.state;
-    result = stepOrientation(state, { z: 9, at: 699 });
+    result = stepOrientation(state, { z: 9, at: 19998 });
     expect(result.event).toBeNull();
     state = result.state;
 
-    result = stepOrientation(state, { z: 9, at: 700 });
+    result = stepOrientation(state, { z: 9, at: 20000 });
     expect(result.event).toMatchObject({
       type: 'ORIENTATION_CHANGED',
       orientation: 'face-up',
@@ -109,27 +109,27 @@ describe('orientation detection', () => {
     });
     state = result.state;
 
-    result = stepOrientation(state, { z: -9, at: 600 });
+    result = stepOrientation(state, { z: -9, at: 10000 });
     expect(result.event).toBeNull();
     state = result.state;
-    result = stepOrientation(state, { z: -9, at: 601 });
+    result = stepOrientation(state, { z: -9, at: 10301 });
     expect(result.event).toMatchObject({
       type: 'ORIENTATION_CHANGED',
       orientation: 'face-down',
     });
     state = result.state;
 
-    result = stepOrientation(state, { z: 9, at: 602 });
+    result = stepOrientation(state, { z: 9, at: 10302 });
     expect(result.event).toMatchObject({
       type: 'ORIENTATION_CHANGED',
       orientation: 'other',
     });
     state = result.state;
 
-    result = stepOrientation(state, { z: 9, at: 901 });
+    result = stepOrientation(state, { z: 9, at: 20000 });
     expect(result.event).toBeNull();
     state = result.state;
-    result = stepOrientation(state, { z: 9, at: 902 });
+    result = stepOrientation(state, { z: 9, at: 20303 });
     expect(result.event).toMatchObject({
       type: 'ORIENTATION_CHANGED',
       orientation: 'face-up',
@@ -142,5 +142,5 @@ function confirmedOrientation(
 ): OrientationState {
   const z = orientation === 'face-up' ? 9 : -9;
   const first = stepOrientation(createOrientationState(), { z, at: 0 });
-  return stepOrientation(first.state, { z, at: 300 }).state;
+  return stepOrientation(first.state, { z, at: 10000 }).state;
 }

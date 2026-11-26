@@ -7,9 +7,15 @@ import { colors, spacing } from '../theme';
 
 type DemoToolsScreenProps = {
   onBack: () => void;
+  onOpenSensorDebug: () => void;
+  onOpenLocationDebug: () => void;
 };
 
-export function DemoToolsScreen({ onBack }: DemoToolsScreenProps) {
+export function DemoToolsScreen({
+  onBack,
+  onOpenSensorDebug,
+  onOpenLocationDebug,
+}: DemoToolsScreenProps) {
   const [message, setMessage] = useState('');
 
   const add = async (minutes: number) => {
@@ -71,6 +77,12 @@ export function DemoToolsScreen({ onBack }: DemoToolsScreenProps) {
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>Clean Up</Text>
           <Button title="Reset Demo Data" variant="outline" onPress={confirmReset} />
+        </Card>
+
+        <Card style={styles.card}>
+          <Text style={styles.sectionTitle}>Debug Screens</Text>
+          <Button title="Sensor Debug" variant="outline" onPress={onOpenSensorDebug} />
+          <Button title="Location Debug" variant="outline" onPress={onOpenLocationDebug} />
         </Card>
 
         {message ? <Text style={styles.message}>{message}</Text> : null}

@@ -13,7 +13,11 @@ const RADAR_SIZE = 280;
 const RADAR_PADDING = 20;
 const CAMPUS_ID = -1;
 
-export function LocationDebugScreen() {
+type LocationDebugScreenProps = {
+  onBack?: () => void;
+};
+
+export function LocationDebugScreen({ onBack }: LocationDebugScreenProps = {}) {
   const [active, setActive] = useState(false);
   const [radiusM, setRadiusM] = useState(100);
   const [campus, setCampus] = useState<Campus | null>(null);
@@ -86,6 +90,9 @@ export function LocationDebugScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
+      {onBack ? (
+        <Button title="Back" variant="outline" onPress={onBack} />
+      ) : null}
       <Text style={styles.title}>Location debug</Text>
 
       <Card style={styles.card}>
