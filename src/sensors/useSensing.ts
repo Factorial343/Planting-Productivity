@@ -11,11 +11,13 @@ import { useAccelerometer } from './useAccelerometer';
 type UseSensingOptions = {
   enabled: boolean;
   onEvent: (event: SensorEvent) => void;
+  resetKey?: number;
 };
 
 export function useSensing({
   enabled,
   onEvent,
+  resetKey = 0,
 }: UseSensingOptions): { orientation: Orientation; pickupCount: number } {
   const [orientation, setOrientation] = useState<Orientation>('other');
   const [pickupCount, setPickupCount] = useState(0);
@@ -37,7 +39,7 @@ export function useSensing({
     pickupStateRef.current = createPickupState();
     setOrientation('other');
     setPickupCount(0);
-  }, [enabled]);
+  }, [enabled, resetKey]);
 
   useEffect(() => {
     if (!enabled) {
